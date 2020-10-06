@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { 
   Container, 
@@ -12,7 +12,9 @@ import {
   TableHead, 
   TableRow, 
   Paper,
-  Tooltip
+  Tooltip,
+  Backdrop,
+  CircularProgress
 } from '@material-ui/core';
 import { DeleteOutlineOutlined, Edit } from '@material-ui/icons';
 
@@ -23,7 +25,7 @@ import { yupResolver } from '@hookform/resolvers';
 import * as yup from "yup";
 
 import { useDispatch, useSelector } from "react-redux";
-import { getTasksRequest, deleteTaskRequest, addTaskRequest } from "./tasksSlice";
+import { getTasksRequest, deleteTaskRequest, addTaskRequest, updateTaskRequest } from "./tasksSlice";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -40,7 +42,11 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
     width: 60,
-  }
+  },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  },
 }));
 
 const schema = yup.object().shape({
@@ -51,22 +57,34 @@ const schema = yup.object().shape({
 function Tasks() {
   const classes = useStyles();
   const dispatch = useDispatch()
+  const [idTask, setIdTask] = useState()
 
-  const { register, handleSubmit, errors, reset } = useForm({
+  const { register, handleSubmit, errors, reset, setValue } = useForm({
     resolver: yupResolver(schema)
   });
 
   const onSubmit = data => {
-    dispatch(addTaskRequest(data))
+    if(idTask) {
+      data['id'] = idTask
+      dispatch(updateTaskRequest(data))
+    } else {
+      dispatch(addTaskRequest(data))
+    }
     reset()
   };
+
+  const handleEdit = (task) => {
+    setIdTask(task?.id)
+    setValue('title', task.title)
+    setValue('description', task.description)
+  }
 
   useEffect(() => {
     dispatch(getTasksRequest())
   }, [dispatch])
 
 
-  const { tasks } = useSelector(state => state.tasks)
+  const { tasks, loading } = useSelector(state => state.tasks)
 
   return (
     <Container component="main">
@@ -84,6 +102,7 @@ function Tasks() {
             inputRef={register}
             error={!!errors?.title}
             helperText={errors.title?.message}
+            InputLabelProps={{ shrink: true  }} 
           />
           <TextField
             fullWidth
@@ -99,6 +118,7 @@ function Tasks() {
             inputRef={register}
             error={!!errors?.description}
             helperText={errors.description?.message}
+            InputLabelProps={{ shrink: true }} 
           />
           <Button
               type="submit"
@@ -120,7 +140,7 @@ function Tasks() {
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
-          {/* {id: 21, title: "Criar componente Card", status: 3, description: "Criar componente Card", createAt: "2020-05-06 21:19:54", …} */}
+         
           <TableBody>
             {tasks.map((task) => (
               <TableRow key={task.id}>
@@ -131,7 +151,7 @@ function Tasks() {
                     <Tooltip title="Delete" onClick={() => dispatch(deleteTaskRequest(task.id))}>
                       <DeleteOutlineOutlined />
                     </Tooltip>
-                    <Tooltip title="Edit" onClick={() => alert(`Edit ID: ${task.id}`)}>
+                    <Tooltip title="Edit" onClick={() => handleEdit(task)}>
                       <Edit />
                     </Tooltip>
                   </div>
@@ -143,6 +163,13 @@ function Tasks() {
         </Table>
       </TableContainer>
       </Grid>
+
+
+      <Backdrop className={classes.backdrop} open={loading}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
+      
     </Container>
   );
 }

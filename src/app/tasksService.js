@@ -13,3 +13,7 @@ export async function deleteTask(id){
 export async function addTask(task){
     return axios.post(`${API}`, task);
 }
+
+export async function updateTask(data) {
+    return axios.put(`${API}/${data?.id}`, data)
+}

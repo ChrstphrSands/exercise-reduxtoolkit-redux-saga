@@ -9,10 +9,12 @@ import {
     deleteTaskFailure,
     addTaskRequest,
     addTaskSuccess,
-    addTaskFailure
+    addTaskFailure,
+    updateTaskRequest,
+    updateTaskSuccess
 
 } from "./tasksSlice";
-import { getTasks, deleteTask, addTask } from "./tasksService";
+import { getTasks, deleteTask, addTask, updateTask } from "./tasksService";
 
 export function* getTasksRequestSaga() {
     try {
@@ -41,8 +43,21 @@ export function* addTaskRequestSaga({ payload }) {
     }
  }
 
+ export function* updateTaskRequestSaga({ payload }) {
+    try {
+        const { data } = yield call(updateTask, payload)
+        yield put(updateTaskSuccess(data.result))
+    } catch (error) {
+        console.error(error)
+    }
+ }
+
+
+ 
+
 export default all([
     takeLatest(getTasksRequest.type, getTasksRequestSaga),
     takeLatest(deleteTaskRequest.type, deleteTaskRequestSaga),
-    takeLatest(addTaskRequest.type, addTaskRequestSaga)
+    takeLatest(addTaskRequest.type, addTaskRequestSaga),
+    takeLatest(updateTaskRequest.type, updateTaskRequestSaga)
 ])

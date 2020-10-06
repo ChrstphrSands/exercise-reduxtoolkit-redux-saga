@@ -48,6 +48,17 @@ const tasksSlice = createSlice({
     addTaskFailure: state => {
       state.loading = false
      },
+    updateTaskRequest: (state, { payload }) => { 
+      state.loading = true
+    },
+    updateTaskSuccess: (state, { payload }) => {
+      const task = state.tasks.find(task => task.id === payload.id)
+      if(task) {
+        task.title = payload.title
+        task.description = payload.description
+      }
+      state.loading = false
+    },
     
   }
 })
@@ -61,7 +72,9 @@ export const {
   deleteTaskFailure,
   addTaskRequest,
   addTaskSuccess,
-  addTaskFailure
+  addTaskFailure,
+  updateTaskRequest,
+  updateTaskSuccess
 } = tasksSlice.actions
 
 export default tasksSlice.reducer
