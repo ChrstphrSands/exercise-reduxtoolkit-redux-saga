@@ -15,5 +15,5 @@ export async function saveTask(data){
 }
 
 export async function updateTask(data){
-    return axios.put(`${API}/${data.id}`, data);
+    return axios.put(`${API}/${data?.id}`, data);
 }

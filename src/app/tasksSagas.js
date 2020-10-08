@@ -45,8 +45,8 @@ export function* saveTaskRequestSaga({ payload }) {
 
  export function* updateTaskRequestSaga({ payload }) {
      try {
-         yield call(updateTask, payload)
-         yield put(updateTaskSuccess(payload))
+        const { data } = yield call(updateTask, payload)
+        yield put(updateTaskSuccess(data.result))
      } catch (error) {
          yield put(updateTaskFailure())
      }

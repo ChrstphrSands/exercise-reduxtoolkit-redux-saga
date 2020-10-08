@@ -77,8 +77,7 @@ export const {
   saveTaskFailure,
   updateTaskRequest,
   updateTaskSuccess,
-  updateTaskFailure,
-  toggleEditing
+  updateTaskFailure  
 } = tasksSlice.actions
 
 export default tasksSlice.reducer
