@@ -7,12 +7,14 @@ import {
     deleteTaskRequest,
     deleteTaskSuccess,
     deleteTaskFailure,
-    addTaskRequest,
-    addTaskSuccess,
-    addTaskFailure
-
+    saveTaskRequest,
+    saveTaskSuccess,
+    saveTaskFailure, 
+    updateTaskRequest,
+    updateTaskSuccess,
+    updateTaskFailure
 } from "./tasksSlice";
-import { getTasks, deleteTask, addTask } from "./tasksService";
+import { getTasks, deleteTask, saveTask, updateTask } from "./tasksService";
 
 export function* getTasksRequestSaga() {
     try {
@@ -32,17 +34,27 @@ export function* deleteTaskRequestSaga({ payload }) {
    }
 }
 
-export function* addTaskRequestSaga({ payload }) {
+export function* saveTaskRequestSaga({ payload }) {
     try {
-        const { data } = yield call(addTask, payload)
-        yield put(addTaskSuccess(data.result))
+        const { data } = yield call(saveTask, payload)
+        yield put(saveTaskSuccess(data.result))
     } catch (error) {
-        yield put(addTaskFailure())
+        yield put(saveTaskFailure())
     }
  }
+
+ export function* updateTaskRequestSaga({ payload }) {
+     try {
+         yield call(updateTask, payload)
+         yield put(updateTaskSuccess(payload))
+     } catch (error) {
+         yield put(updateTaskFailure())
+     }
+}
 
 export default all([
     takeLatest(getTasksRequest.type, getTasksRequestSaga),
     takeLatest(deleteTaskRequest.type, deleteTaskRequestSaga),
-    takeLatest(addTaskRequest.type, addTaskRequestSaga)
+    takeLatest(saveTaskRequest.type, saveTaskRequestSaga),
+    takeLatest(updateTaskRequest.type, updateTaskRequestSaga)
 ])

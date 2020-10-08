@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { 
   Container, 
@@ -12,7 +12,9 @@ import {
   TableHead, 
   TableRow, 
   Paper,
-  Tooltip
+  Tooltip,
+  Backdrop,
+  CircularProgress
 } from '@material-ui/core';
 import { DeleteOutlineOutlined, Edit } from '@material-ui/icons';
 
@@ -23,7 +25,7 @@ import { yupResolver } from '@hookform/resolvers';
 import * as yup from "yup";
 
 import { useDispatch, useSelector } from "react-redux";
-import { getTasksRequest, deleteTaskRequest, addTaskRequest } from "./tasksSlice";
+import { getTasksRequest, deleteTaskRequest, saveTaskRequest, updateTaskRequest } from "./tasksSlice";
 
 const useStyles = makeStyles((theme) => ({
   form: {
@@ -40,7 +42,11 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
     width: 60,
-  }
+  },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  },
 }));
 
 const schema = yup.object().shape({
@@ -51,14 +57,21 @@ const schema = yup.object().shape({
 function Tasks() {
   const classes = useStyles();
   const dispatch = useDispatch()
+  const [idTask, setIdTask] = useState();
 
-  const { register, handleSubmit, errors, reset } = useForm({
+  const { register, handleSubmit, errors, reset, setValue } = useForm({
     resolver: yupResolver(schema)
   });
 
-  const onSubmit = data => {
-    dispatch(addTaskRequest(data))
-    reset()
+  const onSubmit = (data) => {
+    if (idTask) {
+      data['id'] = idTask; //neste ponto está sendo injetado no data do UseForm o id
+      dispatch(updateTaskRequest(data));
+      setIdTask('');
+    } else {
+      dispatch(saveTaskRequest(data));
+    }
+    reset();
   };
 
   useEffect(() => {
@@ -66,49 +79,58 @@ function Tasks() {
   }, [dispatch])
 
 
-  const { tasks } = useSelector(state => state.tasks)
+  const { tasks, loading } = useSelector(state => state.tasks)  
+
+  const handleEdit = (task) => {
+    setValue("title", task.title);
+    setValue("description", task.description);
+    setIdTask(task.id);    
+  }
 
   return (
     <Container component="main">
       <form className={classes.form} noValidate onSubmit={handleSubmit(onSubmit)}>
-        
         <TextField
+          fullWidth
+          variant="outlined"
+          margin="normal"
+          required
+          id="title"
+          label="Title"
+          name="title"
+          size="small"
+          inputRef={register}
+          defaultValue=""
+          error={!!errors?.title}
+          helperText={errors.title?.message}
+          InputLabelProps={{shrink:true}}
+        />
+        <TextField
+          fullWidth
+          variant="outlined"
+          margin="normal"
+          required
+          id="description"
+          label="Description"
+          name="description"
+          size="small" 
+          defaultValue=""
+          multiline            
+          rows={4}
+          inputRef={register}
+          error={!!errors?.description}
+          helperText={errors.description?.message}
+          InputLabelProps={{shrink:true}}
+        />
+        <Button
+            type="submit"
             fullWidth
-            variant="outlined"
-            margin="normal"
-            required
-            id="title"
-            label="Title"
-            name="title"
-            size="small"
-            inputRef={register}
-            error={!!errors?.title}
-            helperText={errors.title?.message}
-          />
-          <TextField
-            fullWidth
-            variant="outlined"
-            margin="normal"
-            required
-            id="description"
-            label="Description"
-            name="description"
-            size="small"
-            multiline
-            rows={4}
-            inputRef={register}
-            error={!!errors?.description}
-            helperText={errors.description?.message}
-          />
-          <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="primary"
-              className={classes.submit}
-            >
-              Save
-            </Button>
+            variant="contained"
+            color="primary"
+            className={classes.submit}
+          >
+            Save
+          </Button>
       </form>
       <Grid>
       <TableContainer component={Paper}>
@@ -120,7 +142,6 @@ function Tasks() {
               <TableCell align="right">Actions</TableCell>
             </TableRow>
           </TableHead>
-          {/* {id: 21, title: "Criar componente Card", status: 3, description: "Criar componente Card", createAt: "2020-05-06 21:19:54", …} */}
           <TableBody>
             {tasks.map((task) => (
               <TableRow key={task.id}>
@@ -131,18 +152,20 @@ function Tasks() {
                     <Tooltip title="Delete" onClick={() => dispatch(deleteTaskRequest(task.id))}>
                       <DeleteOutlineOutlined />
                     </Tooltip>
-                    <Tooltip title="Edit" onClick={() => alert(`Edit ID: ${task.id}`)}>
+                    <Tooltip title="Edit" onClick={() => handleEdit(task)}>
                       <Edit />
                     </Tooltip>
                   </div>
-                </TableCell>
-                
+                </TableCell>               
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
       </Grid>
+      <Backdrop className={classes.backdrop} open={loading}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Container>
   );
 }

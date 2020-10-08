@@ -38,17 +38,30 @@ const tasksSlice = createSlice({
     deleteTaskFailure: state => {
       state.loading = false
      },
-    addTaskRequest: (state) => { 
+    saveTaskRequest: (state) => { 
       state.loading = true
     },
-    addTaskSuccess: (state, { payload }) => {
+    saveTaskSuccess: (state, { payload }) => {
       state.tasks.push(payload)
       state.loading = false
     },
-    addTaskFailure: state => {
+    saveTaskFailure: state => {
       state.loading = false
      },
-    
+    updateTaskRequest: (state, {payload}) => {
+      state.loading = true
+    },
+    updateTaskSuccess: (state, { payload }) => {
+      const task = state.tasks.find(task => task.id === payload.id) //dúvida essa task é a mesma task do state?
+      if (task) {
+        task.title = payload.title;
+        task.description = payload.description;
+      }
+      state.loading = false
+    },
+    updateTaskFailure: (state) => {
+      state.loading = false
+    },
   }
 })
 
@@ -59,9 +72,13 @@ export const {
   deleteTaskRequest,
   deleteTaskSuccess,
   deleteTaskFailure,
-  addTaskRequest,
-  addTaskSuccess,
-  addTaskFailure
+  saveTaskRequest,
+  saveTaskSuccess,
+  saveTaskFailure,
+  updateTaskRequest,
+  updateTaskSuccess,
+  updateTaskFailure,
+  toggleEditing
 } = tasksSlice.actions
 
 export default tasksSlice.reducer
