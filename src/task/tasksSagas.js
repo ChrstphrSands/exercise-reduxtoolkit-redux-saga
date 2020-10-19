@@ -16,9 +16,9 @@ import {
 } from "./tasksSlice";
 import { getTasks, deleteTask, saveTask, updateTask } from "./tasksService";
 
-export function* getTasksRequestSaga() {
+export function* getTasksRequestSaga() {    
     try {
-        const { data } = yield call(getTasks)
+        const { data } = yield call(getTasks)        
         yield put(getTasksSuccess(data))
     } catch (error) {
         yield put(getTasksFailure())

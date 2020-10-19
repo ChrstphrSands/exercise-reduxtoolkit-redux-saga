@@ -1,10 +1,10 @@
 import { all } from "redux-saga/effects";
 
-import TasksSagas from "../app/tasksSagas";
+import tasksSagas from "./../task/tasksSagas";
 
 function* Saga() {
     yield all([
-        TasksSagas
+        tasksSagas
     ])
 }
 
