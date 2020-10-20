@@ -14,12 +14,12 @@ const initialState = {
 const tasksSlice = createSlice({
   name: 'tasks',
   initialState,
-  reducers: { 
+  reducers: {
     getTasksRequest: state => {
         state.loading = true
      },
     getTasksSuccess: (state, { payload }) => { 
-      state.tasks = payload.elements
+      state.tasks = payload.elements      
       state.paging.limit = payload.limit
       state.paging.offset = payload.offset
       state.paging.totalElements = payload.totalElements
@@ -52,12 +52,16 @@ const tasksSlice = createSlice({
       state.loading = true
     },
     updateTaskSuccess: (state, { payload }) => {
-      const task = state.tasks.find(task => task.id === payload.id) //dúvida essa task é a mesma task do state?
+      const task = state.tasks.find(task => task.id === payload.id)
       if (task) {
         task.title = payload.title;
         task.description = payload.description;
       }
+      state.task = null;
       state.loading = false
+    },
+    putTask(state, { payload }) {      
+      state.task = payload;      
     },
     updateTaskFailure: (state) => {
       state.loading = false
@@ -66,6 +70,7 @@ const tasksSlice = createSlice({
 })
 
 export const { 
+  putTask,
   getTasksRequest, 
   getTasksSuccess, 
   getTasksFailure,
