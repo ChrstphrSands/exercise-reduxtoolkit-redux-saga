@@ -10,15 +10,10 @@ import {
     Tooltip,
 } from '@material-ui/core';
 import { DeleteOutlineOutlined, Edit } from '@material-ui/icons';
-import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch } from "react-redux";
 import { deleteTaskRequest, putTask } from "../../tasksSlice";
-
-const useStyles = makeStyles((theme) => ({
-    table: {
-        minWidth: 650,
-    },
-}));
+import useStyles from './TasksList.style';
+import headerTable from './headerTable';
 
 const TasksList = ({ tasks }) => {    
     const classes = useStyles();
@@ -27,15 +22,12 @@ const TasksList = ({ tasks }) => {
     const handleEdit = (task) => {
         dispatch(putTask(task))
     };
-    
     return (
           <TableContainer component={Paper}>
             <Table className={classes.table} aria-label="simple table">
               <TableHead>
-                <TableRow>
-                  <TableCell>Title</TableCell>
-                  <TableCell>Description</TableCell>
-                  <TableCell align="right">Actions</TableCell>
+                <TableRow>{headerTable.map((head) => (
+                  <TableCell key={head.id} align={head.align}>{head.name}</TableCell>))}
                 </TableRow>
               </TableHead>
               <TableBody>
